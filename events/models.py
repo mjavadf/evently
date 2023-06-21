@@ -41,8 +41,8 @@ class Ticket(models.Model):
     
     def buy(self, quantity=1):
         if self.available:
-            self.sold += quantity
-            self.available = self.sold < self.capacity
+            self.purchased += quantity
+            self.available = self.purchased < self.capacity
             self.save()
             return True
         return False
