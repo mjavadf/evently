@@ -30,7 +30,7 @@ class Event(models.Model):
 class Ticket(models.Model):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='tickets')
     title = models.CharField(max_length=255)
-    descriptin = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     capacity = models.IntegerField()
     purchased = models.IntegerField(default=0)
