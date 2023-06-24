@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
-    'rest_framework',
+    "rest_framework",
+    "django_filters",
     "events.apps.EventsConfig",
     "registration.apps.RegistrationConfig",
 ]
