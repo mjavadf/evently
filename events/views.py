@@ -1,24 +1,8 @@
-from django.shortcuts import get_list_or_404, get_object_or_404, render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import ListCreateAPIView
+from .serializers import EventSerializer, EventListSerializer, TicketSerializer
+from .models import Event, Ticket
 from events import serializers
-from events.serializers import EventSerializer, EventListSerializer
-from .models import Event
-
-
-@api_view(["GET"])
-def home(request):
-    events = Event.objects.all().order_by("id")
-    serializer = EventListSerializer(events, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def event_detail(request, id):
-    event = get_object_or_404(Event, id=id)
-    serializer = EventSerializer(event)
-    return Response(serializer.data)
 
 
 class EventViewSet(ModelViewSet):
@@ -28,3 +12,13 @@ class EventViewSet(ModelViewSet):
     
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action, self.default_serializer_class)
+
+
+class TicketList(ListCreateAPIView):
+    serializer_class = TicketSerializer
+    
+    def get_serializer_context(self):
+        return {"event_id": self.kwargs["event_id"]}
+    
+    def get_queryset(self):
+        return Ticket.objects.filter(event_id=self.kwargs["event_id"])

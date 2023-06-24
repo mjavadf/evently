@@ -34,14 +34,18 @@ class EventListSerializer(serializers.ModelSerializer):
         tickets = event.tickets.all()
         if tickets.count() > 1:
             prices = [ticket.price for ticket in tickets]
-            return f"{min(prices)} - {max(prices)}"
+            min_price = "Free" if min(prices) == 0 else min(prices)
+            return f"{min_price} - {max(prices)}"
         elif tickets.count() == 1:
-            return tickets[0].price
+            return "Free" if tickets[0].price == 0 else tickets[0].price
         else:
             return "Free"
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    purchased = serializers.IntegerField(read_only=True)
+    available = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = Ticket
         fields = (
@@ -53,3 +57,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "available",
             "description",
         )
+
+    def create(self, validated_data):
+        event_id = self.context["event_id"]
+        return Ticket.objects.create(event_id=event_id, **validated_data)
