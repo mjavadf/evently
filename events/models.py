@@ -18,7 +18,6 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
-    capacity = models.IntegerField()
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organizing_events')
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True)
