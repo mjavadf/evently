@@ -25,7 +25,7 @@ class EventSerializer(serializers.ModelSerializer):
 class EventListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ("id", "title", "date", "location", "price")
+        fields = ("id", "title", "date", "location", "price", "organizer")
 
     price = serializers.SerializerMethodField(method_name="price_calculator")
 
@@ -56,15 +56,16 @@ class TicketSerializer(serializers.ModelSerializer):
             "available",
             "description",
         )
-        
+
     def create(self, validated_data):
-        event = Event.objects.get(pk=self.context['event_pk'])
+        event = Event.objects.get(pk=self.context["event_pk"])
         ticket = Ticket.objects.create(event=event, **validated_data)
         return ticket
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Profile
-        fields = ['id', 'user_id', 'birth_date', 'bio', 'location', 'website']
+        fields = ["id", "user_id", "birth_date", "bio", "location", "website"]
