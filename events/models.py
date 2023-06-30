@@ -43,6 +43,9 @@ class Ticket(models.Model):
             return True
         return False
     
+    class Meta:
+        unique_together = ('event', 'title')
+    
     
 class Registration(models.Model):
     STATUS_CHOICES = [

@@ -13,7 +13,6 @@ class EventSerializer(serializers.ModelSerializer):
             "location",
             "organizer",
             "category",
-            "slug",
             "tickets",
         )
 
@@ -57,10 +56,11 @@ class TicketSerializer(serializers.ModelSerializer):
             "available",
             "description",
         )
-
+        
     def create(self, validated_data):
-        event_id = self.context["event_id"]
-        return Ticket.objects.create(event_id=event_id, **validated_data)
+        event = Event.objects.get(pk=self.context['event_pk'])
+        ticket = Ticket.objects.create(event=event, **validated_data)
+        return ticket
 
 
 class ProfileSerializer(serializers.ModelSerializer):
