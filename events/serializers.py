@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, Ticket
+from .models import Event, Profile, Ticket
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -61,3 +61,10 @@ class TicketSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         event_id = self.context["event_id"]
         return Ticket.objects.create(event_id=event_id, **validated_data)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = Profile
+        fields = ['id', 'user_id', 'birth_date', 'bio', 'location', 'website']
