@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "events.apps.EventsConfig",
-    "registration.apps.RegistrationConfig",
     "core.apps.CoreConfig",
 ]
 
