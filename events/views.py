@@ -1,6 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializers import (
     EventSerializer,
     EventListSerializer,
@@ -32,5 +34,17 @@ class TicketViewSet(ModelViewSet):
 
 
 class ProfileViewSet(ModelViewSet):
-    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=["get", 'put'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        profile = Profile.objects.get(user=request.user)
+        if request.method == "GET":
+            serializer = self.get_serializer(profile)
+            return Response(serializer.data)
+        else:
+            serializer = self.get_serializer(profile, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
