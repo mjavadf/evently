@@ -16,7 +16,6 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ("organizer", "date")
     fields = (
         "title",
-        "slug",
         "description",
         "date",
         "location",
@@ -24,7 +23,6 @@ class EventAdmin(admin.ModelAdmin):
         "organizer",
         "category",
     )
-    prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title", "category__name", "location")
     inlines = [TicketInline]
 
@@ -32,7 +30,6 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "event_count")
-    prepopulated_fields = {"slug": ("name",)}
 
     def event_count(self, category):
         url = (
