@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 from events.models import Event
-from django.contrib.auth.models import User
 
 class Registration(models.Model):
     STATUS_CHOICES = [
@@ -18,7 +18,7 @@ class Registration(models.Model):
     ]
     
     event = models.ForeignKey(Event, on_delete=models.PROTECT)
-    participant = models.ForeignKey(User, on_delete=models.PROTECT)
+    participant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     registration_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1, 
                               choices=STATUS_CHOICES, 

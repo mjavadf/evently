@@ -1,6 +1,5 @@
-from unicodedata import category
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -18,7 +17,7 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
-    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organizing_events')
+    organizer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='organizing_events')
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True)
     
