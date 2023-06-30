@@ -40,3 +40,8 @@ class CategoryAdmin(admin.ModelAdmin):
             + f"?category__id__exact={category.id}"
         )
         return format_html('<a href="{}">{}</a>', url, category.event_set.count())
+
+@admin.register(models.Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ("user",)
+    search_fields = ("user",)
