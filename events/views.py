@@ -1,10 +1,10 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-
-from events.permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHODS
+from events.permissions import IsOwnerOfEventOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
     EventSerializer,
     EventListSerializer,
@@ -34,12 +34,13 @@ class EventViewSet(ModelViewSet):
 
 class TicketViewSet(ModelViewSet):
     serializer_class = TicketSerializer
+    permission_classes = [IsOwnerOfEventOrReadOnly]
 
     def get_queryset(self):
         return Ticket.objects.filter(event_id=self.kwargs["event_pk"])
 
     def get_serializer_context(self):
-        return {"event_pk": self.kwargs["event_pk"]}
+        return {"event_pk": self.kwargs["event_pk"], "user": self.request.user}
 
 
 class ProfileViewSet(ModelViewSet):

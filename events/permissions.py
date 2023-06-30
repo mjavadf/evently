@@ -13,3 +13,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         return obj.organizer == request.user  or request.user.is_staff
+
+class IsOwnerOfEventOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if (request.method in permissions.SAFE_METHODS):
+            return True
+        
+        return obj.event.organizer == request.user or request.user.is_staff
