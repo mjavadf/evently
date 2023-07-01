@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
-from .models import Event, Profile, Ticket
+from .models import Event, Profile, Ticket, Registration
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -72,3 +72,43 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["id", "user_id", "birth_date", "bio", "location", "website"]
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+    payment_status = serializers.CharField(read_only=True)
+    payment_amount = serializers.DecimalField(read_only=True, max_digits=6, decimal_places=2)
+
+    class Meta:
+        model = Registration
+        fields = ('id',
+                  'ticket',
+                  'participant',
+                  'status',
+                  'payment_status',
+                  'payment_amount',
+                  'payment_method',)
+
+
+class RegistrationCreateSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+    payment_status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Registration
+        fields = ('id',
+                  'ticket',
+                  'status',
+                  'payment_status',
+                  'payment_method',)
+
+    def create(self, validated_data):
+        ticket = validated_data['ticket']
+        participant = self.context['participant']
+        payment_amount = ticket.price
+        # Check if user has registered for this event before, prevent duplicate registration
+        if Registration.objects.filter(ticket=ticket, participant=participant).exists():
+            raise serializers.ValidationError("You have already registered for this event")
+        if ticket.buy():
+            return Registration.objects.create(participant=participant, payment_amount=payment_amount, **validated_data)
+        raise serializers.ValidationError("Ticket is not available")

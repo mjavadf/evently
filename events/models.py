@@ -36,13 +36,13 @@ class Ticket(models.Model):
     def __str__(self):
         return f'{self.title} for {self.event}'
 
-    def buy(self, quantity=1):
+    def buy(self):
         if self.available:
-            self.purchased += quantity
-            self.available = self.purchased < self.capacity
+            self.purchased += 1
             self.save()
             return True
-        return False
+        else:
+            return False
 
     class Meta:
         unique_together = ('event', 'title')
@@ -83,6 +83,7 @@ class Registration(models.Model):
 
     def __str__(self):
         return f"{self.participant.username} - {self.ticket.event.title} Registration"
+
 
 
 class Profile(models.Model):

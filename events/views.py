@@ -9,9 +9,9 @@ from .serializers import (
     EventSerializer,
     EventListSerializer,
     ProfileSerializer,
-    TicketSerializer,
+    TicketSerializer, RegistrationSerializer, RegistrationCreateSerializer,
 )
-from .models import Event, Profile, Ticket
+from .models import Event, Profile, Ticket, Registration
 
 
 class EventViewSet(ModelViewSet):
@@ -58,3 +58,25 @@ class ProfileViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class RegistrationViewSet(ModelViewSet):
+    serializer_class = RegistrationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Registration.objects.all()
+        else:
+            return Registration.objects.filter(participant=self.request.user)
+
+    def get_serializer_class(self):
+        # RegistrationSerializer for list action and RegistrationCreateSerializer for create action
+        if self.request.method == "GET":
+            return RegistrationSerializer
+        else:
+            return RegistrationCreateSerializer
+
+    def get_serializer_context(self):
+        return {"participant": self.request.user,
+                'request': self.request}
