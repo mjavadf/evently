@@ -19,7 +19,6 @@ class EventAdmin(admin.ModelAdmin):
         "description",
         "date",
         "location",
-        "capacity",
         "organizer",
         "category",
     )
