@@ -12,6 +12,7 @@ from .serializers import (
     TicketSerializer, RegistrationSerializer, RegistrationCreateSerializer,
 )
 from .models import Event, Profile, Ticket, Registration
+from .permissions import IsAdminOrIsSelf
 
 
 class EventViewSet(ModelViewSet):
@@ -45,7 +46,9 @@ class TicketViewSet(ModelViewSet):
 
 class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrIsSelf]
+    queryset = Profile.objects.all()
+    lookup_field = "user__username"
 
     @action(detail=False, methods=["get", "put"], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -58,6 +61,13 @@ class ProfileViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+    
+    # users that aren't admin can't see the list of profiles
+    def list(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return super().list(request, *args, **kwargs)
+        else:
+            return Response({"detail": "You don't have permission to view the profiles."}, status=403)
 
 
 class RegistrationViewSet(ModelViewSet):
