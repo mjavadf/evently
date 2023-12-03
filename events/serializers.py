@@ -60,8 +60,8 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         event = Event.objects.get(pk=self.context["event_pk"])
-        if event.organizer != self.context["user"]:
-            raise PermissionDenied("You are not the organizer of this event")
+        # if event.organizer != self.context["user"]:
+        #     raise PermissionDenied("You are not the organizer of this event")
         ticket = Ticket.objects.create(event=event, **validated_data)
         return ticket
 

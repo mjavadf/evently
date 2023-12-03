@@ -13,6 +13,7 @@ from .serializers import (
 )
 from .models import Event, Profile, Ticket, Registration
 from .permissions import IsAdminOrIsSelf
+from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
@@ -33,9 +34,14 @@ class EventViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-class TicketViewSet(ModelViewSet):
+class TicketViewSet( CheckParentPermissionMixin, ModelViewSet):
     serializer_class = TicketSerializer
-    permission_classes = [IsOwnerOfEventOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
+    
+    parent_queryset = Event.objects.all()
+    parent_lookup_field = 'id'
+    parent_lookup_url_kwarg = 'event_pk'
+    lookup_field = 'id'
 
     def get_queryset(self):
         return Ticket.objects.filter(event_id=self.kwargs["event_pk"])
