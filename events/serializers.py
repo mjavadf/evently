@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
 from .models import Event, Profile, Ticket, Registration
 
 
@@ -18,9 +17,14 @@ class EventSerializer(serializers.ModelSerializer):
         )
 
     tickets = serializers.SerializerMethodField()
+    organizer = serializers.PrimaryKeyRelatedField(read_only=True)
 
     def get_tickets(self, obj):
         return TicketSerializer(obj.tickets.all(), many=True).data
+    
+    def create(self, validated_data):
+        organizer = self.context['request'].user
+        return Event.objects.create(organizer=organizer, **validated_data)
 
 
 class EventListSerializer(serializers.ModelSerializer):

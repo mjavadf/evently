@@ -18,14 +18,22 @@ from .mixins import CheckParentPermissionMixin
 
 class EventViewSet(ModelViewSet):
     queryset = Event.objects.all()
-    serializer_classes = {"list": EventListSerializer}
-    default_serializer_class = EventSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
     permission_classes = [IsOwnerOrReadOnly]
-
+    
     def get_serializer_class(self):
-        return self.serializer_classes.get(self.action, self.default_serializer_class)
+        if self.action in ["list", "retrieve"]:
+            return EventListSerializer
+        else:
+            return EventSerializer
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["request"] = self.request
+        return context
+    
+
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def my_events(self, request):
