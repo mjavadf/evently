@@ -6,7 +6,7 @@ from . import models
 
 class TicketInline(admin.StackedInline):
     model = models.Ticket
-    exclude = ['purchased']
+    exclude = ["purchased"]
     extra = 1
 
 
@@ -37,7 +37,24 @@ class CategoryAdmin(admin.ModelAdmin):
         )
         return format_html('<a href="{}">{}</a>', url, category.event_set.count())
 
+
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user",)
     search_fields = ("user",)
+
+
+@admin.register(models.Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    list_display = ("event", "title", "price", "capacity", "purchased", "available")
+    list_filter = ("event", "available")
+    search_fields = ("event__title", "title")
+    autocomplete_fields = ("event",)
+
+
+@admin.register(models.Registration)
+class RegistrationAdmin(admin.ModelAdmin):
+    list_display = ("ticket", "participant", "status", "payment_status")
+    list_filter = ("status", "payment_status")
+    search_fields = ("participant__username",)
+    autocomplete_fields = ("ticket", "participant")
