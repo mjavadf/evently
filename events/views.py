@@ -1,10 +1,9 @@
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, SAFE_METHODS
-from events.permissions import IsOwnerOfEventOrReadOnly, IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
+from events.permissions import IsOwnerOrReadOnly
 from .serializers import (
     EventSerializer,
     EventListSerializer,
@@ -63,6 +62,12 @@ class ProfileViewSet(ModelViewSet):
     permission_classes = [IsAdminOrIsSelf]
     queryset = Profile.objects.all()
     lookup_field = "user__username"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["request"] = self.request
+        return context
+    
 
     @action(detail=False, methods=["get", "put"], permission_classes=[IsAuthenticated])
     def me(self, request):
