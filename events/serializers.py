@@ -1,9 +1,22 @@
 from django.urls import reverse
 from rest_framework import serializers
-from .models import Event, Profile, Ticket, Registration
+from .models import Event, Profile, Ticket, Registration, Location
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ("id", "name", "country", "city", "address", "latitude", "longitude")
 
 
 class EventSerializer(serializers.ModelSerializer):
+    tickets = serializers.SerializerMethodField()
+    organizer = serializers.PrimaryKeyRelatedField(read_only=True)
+    location_id = serializers.PrimaryKeyRelatedField(
+        queryset=Location.objects.all(), source='location', required=False, allow_null=True
+    )
+    location = LocationSerializer(required=False)
+
     class Meta:
         model = Event
         fields = (
@@ -11,29 +24,56 @@ class EventSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "date",
-            "location",
             "organizer",
             "category",
             "tickets",
+            "location_id",
+            "location",
         )
-
-    tickets = serializers.SerializerMethodField()
-    organizer = serializers.PrimaryKeyRelatedField(read_only=True)
 
     def get_tickets(self, obj):
         return TicketSerializer(obj.tickets.all(), many=True).data
 
     def create(self, validated_data):
         organizer = self.context["request"].user
-        return Event.objects.create(organizer=organizer, **validated_data)
+        
+        location_data = validated_data.pop('location', None)
+        location_id = validated_data.pop('location_id', None)
+
+        if location_id:
+            location = Location.objects.get(id=location_id)
+        elif location_data:
+            location = Location.objects.create(**location_data)
+        else:
+            location = None
+
+        event = Event.objects.create(organizer=organizer, location=location, **validated_data)
+        return event
+    
+    def update(self, instance, validated_data):
+        location_data = validated_data.pop('location', None)
+        location_id = validated_data.pop('location_id', None)
+
+        if location_id:
+            location = Location.objects.get(id=location_id)
+        elif location_data:
+            location = Location.objects.create(**location_data)
+        else:
+            location = None
+
+        instance.location = location
+        instance.save()
+
+        return super().update(instance, validated_data)
 
 
 class EventListSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField(method_name="price_calculator")
+    location = LocationSerializer()
+
     class Meta:
         model = Event
-        fields = ("id", "title", "date", "location", "price", "organizer")
-
-    price = serializers.SerializerMethodField(method_name="price_calculator")
+        fields = ("id", "title", "date", "price", "organizer", "location")
 
     def price_calculator(self, event: Event):
         tickets = event.tickets.all()
@@ -89,11 +129,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             "location",
             "website",
         ]
-        
+
     def get_absolute_url(self, obj):
         request = self.context.get("request")
-        return request.build_absolute_uri(reverse("profiles-detail", args=[obj.user.username]))
-    
+        return request.build_absolute_uri(
+            reverse("profiles-detail", args=[obj.user.username])
+        )
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
