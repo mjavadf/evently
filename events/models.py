@@ -9,23 +9,51 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Categories'
+        verbose_name_plural = "Categories"
+
+
+class Location(models.Model):
+    # https://github.com/openwisp/django-rest-framework-gis
+    # https://github.com/Hipo/drf-extra-fields
+    name = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    # picture = models.ImageField(upload_to='locations', null=True, blank=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class Event(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateTimeField()
-    location = models.CharField(max_length=255)
-    organizer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='organizing_events')
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        default=None,
+    )
+    organizer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="organizing_events",
+    )
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     def __str__(self):
-        return f'{self.title} by {self.organizer}'
+        return f"{self.title} by {self.organizer}"
 
 
 class Ticket(models.Model):
-    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='tickets')
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="tickets")
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
@@ -34,7 +62,7 @@ class Ticket(models.Model):
     available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.title} for {self.event}'
+        return f"{self.title} for {self.event}"
 
     def buy(self):
         if self.available:
@@ -45,45 +73,44 @@ class Ticket(models.Model):
             return False
 
     class Meta:
-        unique_together = ('event', 'title')
+        unique_together = ("event", "title")
 
 
 class Registration(models.Model):
     STATUS_CHOICES = [
-        ('P', 'Pending'),
-        ('A', 'Approved'),
-        ('R', 'Rejected'),
-        ('W', 'Waitlisted'),
+        ("P", "Pending"),
+        ("A", "Approved"),
+        ("R", "Rejected"),
+        ("W", "Waitlisted"),
     ]
 
     PAYMENT_STATUS_CHOICES = [
-        ('P', 'Pending'),
-        ('C', 'Complete'),
-        ('F', 'Failed'),
-        ('N', 'Not Required')
+        ("P", "Pending"),
+        ("C", "Complete"),
+        ("F", "Failed"),
+        ("N", "Not Required"),
     ]
 
     PAYMENT_METHOD_CHOICES = [
-        ('C', 'Credit Card'),
-        ('P', 'PayPal'),
-        ('N', 'Not Required')
+        ("C", "Credit Card"),
+        ("P", "PayPal"),
+        ("N", "Not Required"),
     ]
 
     ticket = models.ForeignKey(Ticket, on_delete=models.PROTECT)
     participant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     registration_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=1,
-                              choices=STATUS_CHOICES,
-                              default='A')
-    payment_status = models.CharField(max_length=1,
-                                      choices=PAYMENT_STATUS_CHOICES,
-                                      default='N')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="A")
+    payment_status = models.CharField(
+        max_length=1, choices=PAYMENT_STATUS_CHOICES, default="N"
+    )
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='N')
+    payment_method = models.CharField(
+        max_length=50, choices=PAYMENT_METHOD_CHOICES, default="N"
+    )
 
     def __str__(self):
         return f"{self.participant.username} - {self.ticket.event.title} Registration"
-
 
 
 class Profile(models.Model):

@@ -8,11 +8,18 @@ class TicketInline(admin.StackedInline):
     model = models.Ticket
     exclude = ["purchased"]
     extra = 1
+    
+
+@admin.register(models.Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ("name", "country", "city", "address", "latitude", "longitude")
+    search_fields = ("name", "country", "city", "address")
+    
 
 
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("title", "date", "location", "organizer", "category")
+    list_display = ("title", "date", "location", "organizer", "category", "location")
     list_filter = ("organizer", "date")
     fields = (
         "title",
@@ -23,12 +30,14 @@ class EventAdmin(admin.ModelAdmin):
         "category",
     )
     search_fields = ("title", "category__name", "location")
+    autocomplete_fields = ("location", "organizer", "category")
     inlines = [TicketInline]
 
 
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "event_count")
+    search_fields = ("name",)
 
     def event_count(self, category):
         url = (
