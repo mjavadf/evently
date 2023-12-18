@@ -22,4 +22,5 @@ urlpatterns = [
     path("auth/", include("djoser.urls"), name="djoser"),
     path("auth/", include("djoser.urls.jwt")),
     path("", include("events.urls"), name="events"),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

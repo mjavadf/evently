@@ -11,6 +11,7 @@ django-environ = "*"
 djoser = "*"
 psycopg2 = "*"
 drf-nested-routers = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 

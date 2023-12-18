@@ -43,14 +43,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
+    # third party
     "rest_framework",
     "djoser",
     "django_filters",
+    "debug_toolbar",
+    # local
     "events.apps.EventsConfig",
     "core.apps.CoreConfig",
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -156,3 +160,11 @@ DJOSER = {
         "user_create": "core.serializers.UserCreateSerializer",
     },
 }
+
+STATIC_URL = "static/"
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    "localhost",
+    # ...
+]
