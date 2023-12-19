@@ -49,7 +49,7 @@ class Event(models.Model):
     )
 
     def __str__(self):
-        return f"{self.title} by {self.organizer}"
+        return f"{self.title}"
 
 
 class Ticket(models.Model):

@@ -1,4 +1,7 @@
+from typing import Any
 from django.contrib import admin
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
 from . import models
@@ -32,6 +35,9 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ("title", "category__name", "location")
     autocomplete_fields = ("location", "organizer", "category")
     inlines = [TicketInline]
+    
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).prefetch_related("category", "location")
 
 
 @admin.register(models.Category)
@@ -45,6 +51,9 @@ class CategoryAdmin(admin.ModelAdmin):
             + f"?category__id__exact={category.id}"
         )
         return format_html('<a href="{}">{}</a>', url, category.event_set.count())
+    
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).prefetch_related("event_set")
 
 
 @admin.register(models.Profile)
@@ -59,6 +68,9 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ("event", "available")
     search_fields = ("event__title", "title")
     autocomplete_fields = ("event",)
+    
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request)
 
 
 @admin.register(models.Registration)
