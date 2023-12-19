@@ -16,7 +16,7 @@ from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
-    queryset = Event.objects.all()
+    queryset = Event.objects.prefetch_related("tickets").all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
     permission_classes = [IsOwnerOrReadOnly]
@@ -60,7 +60,7 @@ class TicketViewSet( CheckParentPermissionMixin, ModelViewSet):
 class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAdminOrIsSelf]
-    queryset = Profile.objects.all()
+    queryset = Profile.objects.prefetch_related('user').all()
     lookup_field = "user__username"
     
     def get_context_data(self, **kwargs):
