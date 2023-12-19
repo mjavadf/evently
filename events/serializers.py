@@ -158,6 +158,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class RegistrationCreateSerializer(serializers.ModelSerializer):
+    ticket_id = serializers.IntegerField()
     status = serializers.CharField(read_only=True)
     payment_status = serializers.CharField(read_only=True)
 
@@ -165,14 +166,14 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         model = Registration
         fields = (
             "id",
-            "ticket",
+            "ticket_id",
             "status",
             "payment_status",
             "payment_method",
         )
 
     def create(self, validated_data):
-        ticket = validated_data["ticket"]
+        ticket = Ticket.objects.get(id=validated_data["ticket_id"])
         participant = self.context["participant"]
         payment_amount = ticket.price
         # Check if user has registered for this event before, prevent duplicate registration
