@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework import serializers
-from .models import Event, Profile, Ticket, Registration, Location
+from .models import Event, Profile, Ticket, Reservation, Location
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -137,7 +137,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class ReservationSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
     payment_status = serializers.CharField(read_only=True)
     payment_amount = serializers.DecimalField(
@@ -145,7 +145,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Registration
+        model = Reservation
         fields = (
             "id",
             "ticket",
@@ -157,13 +157,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
 
 
-class RegistrationCreateSerializer(serializers.ModelSerializer):
+class ReservationCreateSerializer(serializers.ModelSerializer):
     ticket_id = serializers.IntegerField()
     status = serializers.CharField(read_only=True)
     payment_status = serializers.CharField(read_only=True)
 
     class Meta:
-        model = Registration
+        model = Reservation
         fields = (
             "id",
             "ticket_id",
@@ -176,13 +176,13 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         ticket = Ticket.objects.get(id=validated_data["ticket_id"])
         participant = self.context["participant"]
         payment_amount = ticket.price
-        # Check if user has registered for this event before, prevent duplicate registration
-        if Registration.objects.filter(ticket=ticket, participant=participant).exists():
+        # Check if user has reserved this event before, prevent duplicate resrvations
+        if Reservation.objects.filter(ticket=ticket, participant=participant).exists():
             raise serializers.ValidationError(
-                "You have already registered for this event"
+                "You have already made a reservation for this event"
             )
         if ticket.buy():
-            return Registration.objects.create(
+            return Reservation.objects.create(
                 participant=participant, payment_amount=payment_amount, **validated_data
             )
         raise serializers.ValidationError("Ticket is not available")

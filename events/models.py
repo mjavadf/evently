@@ -76,7 +76,7 @@ class Ticket(models.Model):
         unique_together = ("event", "title")
 
 
-class Registration(models.Model):
+class Reservation(models.Model):
     STATUS_CHOICES = [
         ("P", "Pending"),
         ("A", "Approved"),
@@ -97,9 +97,9 @@ class Registration(models.Model):
         ("N", "Not Required"),
     ]
 
-    ticket = models.ForeignKey(Ticket, on_delete=models.PROTECT)
-    participant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    registration_date = models.DateTimeField(auto_now_add=True)
+    ticket = models.ForeignKey(Ticket, on_delete=models.PROTECT, related_name="reservations")
+    participant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reservations")
+    date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="A")
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default="N"
@@ -110,7 +110,7 @@ class Registration(models.Model):
     )
 
     def __str__(self):
-        return f"{self.participant.username} - {self.ticket.event.title} Registration"
+        return f"{self.participant.username} - {self.ticket.event.title}"
 
 
 class Profile(models.Model):

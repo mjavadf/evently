@@ -8,9 +8,9 @@ from .serializers import (
     EventSerializer,
     EventListSerializer,
     ProfileSerializer,
-    TicketSerializer, RegistrationSerializer, RegistrationCreateSerializer,
+    TicketSerializer, ReservationSerializer, ReservationCreateSerializer,
 )
-from .models import Event, Profile, Ticket, Registration
+from .models import Event, Profile, Ticket, Reservation
 from .permissions import IsAdminOrIsSelf
 from .mixins import CheckParentPermissionMixin
 
@@ -89,22 +89,22 @@ class ProfileViewSet(ModelViewSet):
             return Response({"detail": "You don't have permission to view the profiles."}, status=403)
 
 
-class RegistrationViewSet(ModelViewSet):
-    serializer_class = RegistrationSerializer
+class ReservationViewSet(ModelViewSet):
+    serializer_class = ReservationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Registration.objects.all()
+            return Reservation.objects.all()
         else:
-            return Registration.objects.filter(participant=self.request.user)
+            return Reservation.objects.filter(participant=self.request.user)
 
     def get_serializer_class(self):
-        # RegistrationSerializer for list action and RegistrationCreateSerializer for create action
+        # ReservationSerializer for list action and ReservationCreateSerializer for create action
         if self.request.method == "GET":
-            return RegistrationSerializer
+            return ReservationSerializer
         else:
-            return RegistrationCreateSerializer
+            return ReservationCreateSerializer
 
     def get_serializer_context(self):
         return {"participant": self.request.user,

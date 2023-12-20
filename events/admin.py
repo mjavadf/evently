@@ -73,8 +73,8 @@ class TicketAdmin(admin.ModelAdmin):
         return super().get_queryset(request)
 
 
-@admin.register(models.Registration)
-class RegistrationAdmin(admin.ModelAdmin):
+@admin.register(models.Reservation)
+class ReservationAdmin(admin.ModelAdmin):
     list_display = ("ticket", "participant", "status", "payment_status")
     list_filter = ("status", "payment_status")
     search_fields = ("participant__username",)
