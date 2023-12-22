@@ -16,7 +16,7 @@ from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
-    queryset = Event.objects.prefetch_related("tickets").all()
+    queryset = Event.objects.prefetch_related("tickets", 'location').all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
     permission_classes = [IsOwnerOrReadOnly]
