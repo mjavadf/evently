@@ -12,6 +12,7 @@ djoser = "*"
 psycopg2 = "*"
 drf-nested-routers = "*"
 django-debug-toolbar = "*"
+pillow = "*"
 
 [dev-packages]
 

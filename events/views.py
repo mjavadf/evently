@@ -5,34 +5,35 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from events.permissions import IsOwnerOrReadOnly
 from .serializers import (
+    EventImageSerializer,
     EventSerializer,
     EventListSerializer,
     ProfileSerializer,
-    TicketSerializer, ReservationSerializer, ReservationCreateSerializer,
+    TicketSerializer,
+    ReservationSerializer,
+    ReservationCreateSerializer,
 )
-from .models import Event, Profile, Ticket, Reservation
+from .models import Event, EventImage, Profile, Ticket, Reservation
 from .permissions import IsAdminOrIsSelf
 from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
-    queryset = Event.objects.prefetch_related("tickets", 'location').all()
+    queryset = Event.objects.prefetch_related("tickets", "location").all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
     permission_classes = [IsOwnerOrReadOnly]
-    
+
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return EventListSerializer
         else:
             return EventSerializer
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["request"] = self.request
         return context
-    
-
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def my_events(self, request):
@@ -41,14 +42,14 @@ class EventViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-class TicketViewSet( CheckParentPermissionMixin, ModelViewSet):
+class TicketViewSet(CheckParentPermissionMixin, ModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [IsOwnerOrReadOnly]
-    
+
     parent_queryset = Event.objects.all()
-    parent_lookup_field = 'id'
-    parent_lookup_url_kwarg = 'event_pk'
-    lookup_field = 'id'
+    parent_lookup_field = "id"
+    parent_lookup_url_kwarg = "event_pk"
+    lookup_field = "id"
 
     def get_queryset(self):
         return Ticket.objects.filter(event_id=self.kwargs["event_pk"])
@@ -60,14 +61,13 @@ class TicketViewSet( CheckParentPermissionMixin, ModelViewSet):
 class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAdminOrIsSelf]
-    queryset = Profile.objects.prefetch_related('user').all()
+    queryset = Profile.objects.prefetch_related("user").all()
     lookup_field = "user__username"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["request"] = self.request
         return context
-    
 
     @action(detail=False, methods=["get", "put"], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -80,13 +80,16 @@ class ProfileViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-    
+
     # users that aren't admin can't see the list of profiles
     def list(self, request, *args, **kwargs):
         if request.user.is_staff:
             return super().list(request, *args, **kwargs)
         else:
-            return Response({"detail": "You don't have permission to view the profiles."}, status=403)
+            return Response(
+                {"detail": "You don't have permission to view the profiles."},
+                status=403,
+            )
 
 
 class ReservationViewSet(ModelViewSet):
@@ -107,5 +110,14 @@ class ReservationViewSet(ModelViewSet):
             return ReservationCreateSerializer
 
     def get_serializer_context(self):
-        return {"participant": self.request.user,
-                'request': self.request}
+        return {"participant": self.request.user, "request": self.request}
+
+
+class EventImageViewSet(ModelViewSet):
+    serializer_class = EventImageSerializer
+
+    def get_queryset(self):
+        return EventImage.objects.filter(event_id=self.kwargs["event_pk"])
+
+    def get_serializer_context(self):
+        return {"event_id": self.kwargs["event_pk"], "request": self.request}

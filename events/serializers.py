@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework import serializers
-from .models import Event, Profile, Ticket, Reservation, Location
+from .models import Event, Profile, Ticket, Reservation, Location, EventImage
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -186,3 +186,14 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
                 participant=participant, payment_amount=payment_amount, **validated_data
             )
         raise serializers.ValidationError("Ticket is not available")
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        event_id = self.context["event_id"]
+        return EventImage.objects.create(event_id=event_id, **validated_data)
+    
+    class Meta:
+        model = EventImage
+        fields = ("id", "image")
+        
