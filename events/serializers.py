@@ -7,6 +7,16 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ("id", "name", "country", "city", "address", "latitude", "longitude")
+        
+
+class EventImageSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        event_id = self.context["event_id"]
+        return EventImage.objects.create(event_id=event_id, **validated_data)
+    
+    class Meta:
+        model = EventImage
+        fields = ("id", "image")
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -16,6 +26,7 @@ class EventSerializer(serializers.ModelSerializer):
         queryset=Location.objects.all(), source='location', required=False, allow_null=True
     )
     location = LocationSerializer(required=False)
+    images = EventImageSerializer(many=True, required=False)
 
     class Meta:
         model = Event
@@ -29,6 +40,7 @@ class EventSerializer(serializers.ModelSerializer):
             "tickets",
             "location_id",
             "location",
+            "images"
         )
 
     def get_tickets(self, obj):
@@ -70,10 +82,11 @@ class EventSerializer(serializers.ModelSerializer):
 class EventListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField(method_name="price_calculator")
     location = LocationSerializer()
+    images = EventImageSerializer(many=True, required=False)
 
     class Meta:
         model = Event
-        fields = ("id", "title", "date", "price", "organizer", "location")
+        fields = ("id", "title", "date", "price", "organizer", "location", "images")
 
     def price_calculator(self, event: Event):
         tickets = event.tickets.all()
@@ -186,14 +199,3 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
                 participant=participant, payment_amount=payment_amount, **validated_data
             )
         raise serializers.ValidationError("Ticket is not available")
-
-
-class EventImageSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        event_id = self.context["event_id"]
-        return EventImage.objects.create(event_id=event_id, **validated_data)
-    
-    class Meta:
-        model = EventImage
-        fields = ("id", "image")
-        
