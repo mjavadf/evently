@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from .validators import validate_image_size
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -54,7 +56,8 @@ class Event(models.Model):
     
 class EventImage(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to='events/images')
+    image = models.ImageField(upload_to='events/images',
+                              validators=[validate_image_size],)
 
 
 class Ticket(models.Model):
