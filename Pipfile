@@ -13,6 +13,7 @@ psycopg2 = "*"
 drf-nested-routers = "*"
 django-debug-toolbar = "*"
 pillow = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
