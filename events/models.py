@@ -50,6 +50,11 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title}"
+    
+    
+class EventImages(models.Model):
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to='events/images')
 
 
 class Ticket(models.Model):
