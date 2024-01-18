@@ -13,6 +13,15 @@ class TicketInline(admin.StackedInline):
     extra = 1
     
 
+class EventImageInline(admin.StackedInline):
+    model = models.EventImage
+    readonly_fields = ["image_preview"]
+    
+    def image_preview(self, obj):
+        if obj.image != "":
+            return format_html(f'<img src="{obj.image.url}" width="200px">')
+    
+
 @admin.register(models.Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ("name", "country", "city", "address", "latitude", "longitude")
@@ -34,7 +43,7 @@ class EventAdmin(admin.ModelAdmin):
     )
     search_fields = ("title", "category__name", "location")
     autocomplete_fields = ("location", "organizer", "category")
-    inlines = [TicketInline]
+    inlines = [TicketInline, EventImageInline]
     
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).prefetch_related("category", "location")
