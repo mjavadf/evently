@@ -24,7 +24,7 @@ class Location(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     # picture = models.ImageField(upload_to='locations', null=True, blank=True)
-    
+
     def __str__(self):
         return self.name
 
@@ -52,12 +52,14 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title}"
-    
-    
+
+
 class EventImage(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to='events/images',
-                              validators=[validate_image_size],)
+    image = models.ImageField(
+        upload_to="events/images",
+        validators=[validate_image_size],
+    )
 
 
 class Ticket(models.Model):
@@ -105,8 +107,12 @@ class Reservation(models.Model):
         ("N", "Not Required"),
     ]
 
-    ticket = models.ForeignKey(Ticket, on_delete=models.PROTECT, related_name="reservations")
-    participant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reservations")
+    ticket = models.ForeignKey(
+        Ticket, on_delete=models.PROTECT, related_name="reservations"
+    )
+    participant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reservations"
+    )
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="A")
     payment_status = models.CharField(
@@ -127,6 +133,12 @@ class Profile(models.Model):
     location = models.CharField(max_length=255, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
+    image = models.ImageField(
+        upload_to="profiles/images",
+        null=True,
+        blank=True,
+        validators=[validate_image_size],
+    )
 
     def __str__(self):
         return self.user.username

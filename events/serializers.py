@@ -139,6 +139,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "profile_url",
             "birth_date",
             "bio",
+            "image",
             "location",
             "website",
         ]

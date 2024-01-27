@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
@@ -90,6 +91,17 @@ class ProfileViewSet(ModelViewSet):
                 {"detail": "You don't have permission to view the profiles."},
                 status=403,
             )
+            
+    @action(detail=True, methods=["delete"], permission_classes=[IsAdminOrIsSelf])
+    def remove_image(self, request, user__username=None):
+        profile = self.get_object()
+        if profile.image:
+            profile.image.delete()  # Remove the image file
+            profile.image = None    # Clear the image field in the model
+            profile.save()
+            return Response({"detail": "Profile image removed successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "No profile image to remove"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class ReservationViewSet(ModelViewSet):

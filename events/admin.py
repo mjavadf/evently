@@ -69,6 +69,11 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user",)
     search_fields = ("user",)
+    readonly_fields = ["image_preview"]
+    
+    def image_preview(self, obj):
+        if obj.image != "":
+            return format_html(f'<img src="{obj.image.url}" width="200px">')
 
 
 @admin.register(models.Ticket)
