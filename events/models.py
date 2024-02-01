@@ -1,7 +1,11 @@
 import random
+import qrcode
 from collections.abc import Iterable
 from django.conf import settings
 from django.db import models
+from PIL import Image, ImageDraw
+from io import BytesIO
+from django.core.files import File
 
 from .validators import validate_image_size
 
@@ -125,6 +129,7 @@ class Reservation(models.Model):
         max_length=50, choices=PAYMENT_METHOD_CHOICES, default="N"
     )
     code = models.PositiveIntegerField(null=True, blank=True, unique=True)
+    qrcode = models.ImageField(upload_to='qrcodes',blank=True)
     
     def generate_unique_code(self):
         # Generate a unique 8-digit code
@@ -133,11 +138,24 @@ class Reservation(models.Model):
             if not Reservation.objects.filter(code=code).exists():
                 break
         return code
+        
 
-    def save(self, *args, **kwargs):
+    def save(self,*args, **kwargs):
         # Generate and assign a unique code when saving the reservation
         if not self.code:
             self.code = self.generate_unique_code()
+        
+        # generate and save qr_code
+        if not self.qrcode:
+            qrcode_img = qrcode.make(self.code)
+            canvas = Image.new("RGB", (300,300),"white")
+            draw = ImageDraw.Draw(canvas)
+            canvas.paste(qrcode_img)
+            buffer = BytesIO()
+            canvas.save(buffer,"PNG")
+            self.qrcode.save(f'qrcode{self.code}.png',File(buffer),save=False)
+            canvas.close()
+        
         super().save(*args, **kwargs)
 
     def __str__(self):

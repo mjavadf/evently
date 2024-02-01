@@ -22,5 +22,6 @@ def send_email(sender, instance, created, **kwargs):
                 'event_title': instance.ticket.event.title,
                 'event_date': instance.ticket.event.date,
                 'event_location': instance.ticket.event.location,
-                'reciever': instance.participant.email,}
+                'reciever': instance.participant.email,
+                "qrcode": instance.qrcode.url if instance.qrcode else "",}
     send_reservation_mail_task.delay(created, context)

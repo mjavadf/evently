@@ -158,6 +158,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         read_only=True, max_digits=6, decimal_places=2
     )
     code = serializers.IntegerField(read_only=True)
+    qrcode = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -170,6 +171,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             "payment_amount",
             "payment_method",
             "code",
+            "qrcode",
         )
 
 
@@ -178,6 +180,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
     payment_status = serializers.CharField(read_only=True)
     code = serializers.IntegerField(read_only=True)
+    qrcode = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -188,6 +191,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             "payment_status",
             "payment_method",
             "code",
+            "qrcode",
         )
 
     def create(self, validated_data):

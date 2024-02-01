@@ -93,3 +93,4 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ("status", "payment_status")
     search_fields = ("participant__username",)
     autocomplete_fields = ("ticket", "participant")
+    readonly_fields = ["qrcode"]
