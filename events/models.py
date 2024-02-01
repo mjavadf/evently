@@ -1,3 +1,5 @@
+import random
+from collections.abc import Iterable
 from django.conf import settings
 from django.db import models
 
@@ -122,6 +124,21 @@ class Reservation(models.Model):
     payment_method = models.CharField(
         max_length=50, choices=PAYMENT_METHOD_CHOICES, default="N"
     )
+    code = models.PositiveIntegerField(null=True, blank=True, unique=True)
+    
+    def generate_unique_code(self):
+        # Generate a unique 8-digit code
+        while True:
+            code = random.randint(10000000, 99999999)
+            if not Reservation.objects.filter(code=code).exists():
+                break
+        return code
+
+    def save(self, *args, **kwargs):
+        # Generate and assign a unique code when saving the reservation
+        if not self.code:
+            self.code = self.generate_unique_code()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.participant.username} - {self.ticket.event.title}"

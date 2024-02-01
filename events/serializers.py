@@ -157,6 +157,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     payment_amount = serializers.DecimalField(
         read_only=True, max_digits=6, decimal_places=2
     )
+    code = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -168,6 +169,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             "payment_status",
             "payment_amount",
             "payment_method",
+            "code",
         )
 
 
@@ -175,6 +177,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
     ticket_id = serializers.IntegerField()
     status = serializers.CharField(read_only=True)
     payment_status = serializers.CharField(read_only=True)
+    code = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -184,6 +187,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             "status",
             "payment_status",
             "payment_method",
+            "code",
         )
 
     def create(self, validated_data):

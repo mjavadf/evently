@@ -15,17 +15,18 @@ def create_profile(sender, instance, created, **kwargs):
 # send email after making reservation
 @receiver(post_save, sender=Reservation)
 def send_email(sender, instance, created, **kwargs):
+    code = instance.code
     if created:
         subject = "Reservation Confirmation"
         match instance.status:
             case "P":
-                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation is pending approval.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation with code {instance.code} is pending approval.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
             case "R":
-                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation has been rejected.\nPlease contact us for more information.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation with code {instance.code} has been rejected.\nPlease contact us for more information.\n\nBest regards,\n\nThe Evently Team"""
             case "W":
-                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation has been waitlisted.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation with code {instance.code} has been waitlisted.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
             case _:
-                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation has been approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nThank you for your reservation.\n\nYour reservation with code {instance.code} has been approved.\n\nBest regards,\n\nThe Evently Team"""
                 
         to = instance.participant.email
         send_email_task.delay(subject, message, settings.EMAIL_HOST_USER, [to], fail_silently=False)
@@ -34,13 +35,13 @@ def send_email(sender, instance, created, **kwargs):
         subject = "Reservation Confirmation"
         match instance.status:
             case "P":
-                message = f"""Dear {instance.participant.username},\n\nYour reservation is pending approval.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nYour reservation with code {instance.code} is pending approval.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
             case "R":
-                message = f"""Dear {instance.participant.username},\n\nYour reservation has been rejected.\nPlease contact us for more information.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nYour reservation with code {instance.code} has been rejected.\nPlease contact us for more information.\n\nBest regards,\n\nThe Evently Team"""
             case "W":
-                message = f"""Dear {instance.participant.username},\n\nYour reservation has been waitlisted.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nYour reservation with code {instance.code} has been waitlisted.\nWe will notify you when it is approved.\n\nBest regards,\n\nThe Evently Team"""
             case _:
-                message = f"""Dear {instance.participant.username},\n\nYour reservation has been approved.\n\nBest regards,\n\nThe Evently Team"""
+                message = f"""Dear {instance.participant.username},\n\nYour reservation with code {instance.code} has been approved.\n\nBest regards,\n\nThe Evently Team"""
         to = instance.participant.email
         send_email_task.delay(subject, 
                               message, 
