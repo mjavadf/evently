@@ -15,7 +15,6 @@ def create_profile(sender, instance, created, **kwargs):
 # send email after making reservation
 @receiver(post_save, sender=Reservation)
 def send_email(sender, instance, created, **kwargs):
-    code = instance.code
     if created:
         subject = "Reservation Confirmation"
         match instance.status:
