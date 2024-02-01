@@ -1,0 +1,35 @@
+{% block subject %}
+{% if created %}
+    Reservation Confirmation
+{% else %}
+    Reservation Update
+{% endif %}
+{% endblock %}
+
+{% block html_body  %}
+    <p>Dear {{ username }},</p>
+    {% if created %}
+        <p>Thank you for your reservation.</p>
+    {% endif %}
+    {% if status == "P" %}
+        <p>Your reservation with code {{ code }} is pending.</p>
+        <br/>We will notify you once your reservation has been approved or rejected.
+    {% elif status == "A" %}
+        <p>Your reservation with code {{ code }} has been approved.</p>
+    {% elif status == "R" %}
+        <p>Your reservation with code {{ code }} has been rejected.</p>
+        <br/>Please contact us for more information.
+    {% elif status == "W" %}
+        <p>Your reservation with code {{ code }} has been waitlisted.</p>
+        <br/>We will notify you once your reservation has been approved.
+    {% endif %}
+
+    {% if status == "A" %}
+        <p>Event details:</p>
+        <ul>
+            <li>Event: {{ event_title }}</li>
+            <li>Date: {{ event_date }}</li>
+            <li>Location: {{ event_location }}</li>
+        </ul>
+    {% endif %}
+{% endblock %}

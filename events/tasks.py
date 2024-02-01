@@ -1,7 +1,17 @@
 from celery import shared_task
-from django.core.mail import send_mail
+from templated_mail.mail import BaseEmailMessage
 
 
 @shared_task
-def send_email_task(subject, message, from_address, to_address, fail_silently=False):
-    send_mail(subject, message, from_address, to_address, fail_silently=fail_silently)
+def send_reservation_mail_task(created, context):
+    try:
+        
+        message = BaseEmailMessage(
+            template_name="mail/reservation_mail.html",
+            context=context,
+        )
+        message.send(to=[context['reciever']])
+        return True
+    except Exception as e:
+        print(e)
+        return False
