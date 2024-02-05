@@ -84,6 +84,8 @@ class Ticket(models.Model):
     def buy(self):
         if self.available:
             self.purchased += 1
+            if self.purchased == self.capacity:
+                self.available = False
             self.save()
             return True
         else:
