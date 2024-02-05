@@ -1,5 +1,6 @@
 import random
 import qrcode
+from datetime import timedelta
 from collections.abc import Iterable
 from django.conf import settings
 from django.db import models
@@ -39,6 +40,8 @@ class Event(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True, blank=True)
+
     location = models.ForeignKey(
         Location,
         on_delete=models.SET_NULL,
@@ -58,6 +61,11 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title}"
+    
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        if not self.end_date:
+            self.end_date = self.date + timedelta(hours=2)
+        return super().save(force_insert, force_update, using, update_fields)
 
 
 class EventImage(models.Model):

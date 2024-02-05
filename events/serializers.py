@@ -35,6 +35,7 @@ class EventSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "date",
+            "end_date",
             "organizer",
             "category",
             "tickets",
@@ -86,7 +87,7 @@ class EventListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ("id", "title", "date", "price", "organizer", "location", "images")
+        fields = ("id", "title", "date", "end_date", "price", "organizer", "location", "images")
 
     def price_calculator(self, event: Event):
         tickets = event.tickets.all()

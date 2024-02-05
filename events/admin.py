@@ -37,6 +37,7 @@ class EventAdmin(admin.ModelAdmin):
         "title",
         "description",
         "date",
+        "end_date",
         "location",
         "organizer",
         "category",
