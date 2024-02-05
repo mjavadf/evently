@@ -686,6 +686,15 @@ Reservation Update
                                                                                             <li>Location: {{ event_location }}</li>
                                                                                         </ul>
 
+                                                                                        <a href="{{ add_to_calendar }}" style="display: inline-block;
+                                                                                        padding: 10px 20px;
+                                                                                        border: 1px solid #ccc;
+                                                                                        border-radius: 5px;
+                                                                                        background-color: #008000;  /* Green background */
+                                                                                        text-decoration: none;
+                                                                                        color: #fff;  /* White text for better contrast */
+                                                                                        cursor: pointer;">Add to Calendar</a>
+
                                                                                         <img src="{{ qrcode }}" width="100%" height="auto" alt="qrcode" style="display:block; margin: 0 auto;" />
                                                                                     {% endif %}
                                                                                 </div>
