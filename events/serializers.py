@@ -1,6 +1,7 @@
 from django.urls import reverse
 from rest_framework import serializers
 from .models import Event, Profile, Ticket, Reservation, Location, EventImage
+from .utils import calendar_link_generator
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -161,6 +162,10 @@ class ReservationSerializer(serializers.ModelSerializer):
     )
     code = serializers.IntegerField(read_only=True)
     qrcode = serializers.ImageField(read_only=True)
+    add_to_calendar = serializers.SerializerMethodField(method_name="calendar_link", read_only=True)
+    
+    def calendar_link(self, reservation: Reservation):
+        return calendar_link_generator(reservation)
 
     class Meta:
         model = Reservation
@@ -174,6 +179,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             "payment_method",
             "code",
             "qrcode",
+            "add_to_calendar",
         )
 
 
@@ -183,6 +189,10 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
     payment_status = serializers.CharField(read_only=True)
     code = serializers.IntegerField(read_only=True)
     qrcode = serializers.ImageField(read_only=True)
+    add_to_calendar = serializers.SerializerMethodField(method_name="calendar_link", read_only=True)
+    
+    def calendar_link(self, reservation: Reservation):
+        return calendar_link_generator(reservation)
 
     class Meta:
         model = Reservation
@@ -194,6 +204,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             "payment_method",
             "code",
             "qrcode",
+            "add_to_calendar"
         )
 
     def create(self, validated_data):
