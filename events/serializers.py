@@ -205,8 +205,13 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "You have already made a reservation for this event"
             )
-        if ticket.buy():
+        (is_successful, availablity_type) = ticket.buy()
+        if is_successful and availablity_type == "available" :
             return Reservation.objects.create(
                 participant=participant, payment_amount=payment_amount, **validated_data, status="A" if not need_approval else "P"
+            )
+        elif is_successful and availablity_type == "waitlist":
+            return Reservation.objects.create(
+                participant=participant, payment_amount=payment_amount, **validated_data, status="W"
             )
         raise serializers.ValidationError("Ticket is not available")

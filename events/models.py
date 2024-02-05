@@ -77,6 +77,7 @@ class Ticket(models.Model):
     purchased = models.IntegerField(default=0)
     available = models.BooleanField(default=True)
     needs_approval = models.BooleanField(default=False)
+    waitlist_capacity = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.title} for {self.event}"
@@ -87,9 +88,13 @@ class Ticket(models.Model):
             if self.purchased == self.capacity:
                 self.available = False
             self.save()
-            return True
+            return True, "available"
+        elif self.waitlist_capacity > 0:
+            self.waitlist_capacity -= 1
+            self.save()
+            return True, "waitlist"
         else:
-            return False
+            return False, "sold out"
 
     class Meta:
         unique_together = ("event", "title")
