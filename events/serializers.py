@@ -114,6 +114,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "purchased",
             "available",
             "description",
+            "needs_approval",
         )
 
     def create(self, validated_data):
@@ -198,6 +199,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
         ticket = Ticket.objects.get(id=validated_data["ticket_id"])
         participant = self.context["participant"]
         payment_amount = ticket.price
+        need_approval = ticket.needs_approval
         # Check if user has reserved this event before, prevent duplicate resrvations
         if Reservation.objects.filter(ticket=ticket, participant=participant).exists():
             raise serializers.ValidationError(
@@ -205,6 +207,6 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             )
         if ticket.buy():
             return Reservation.objects.create(
-                participant=participant, payment_amount=payment_amount, **validated_data
+                participant=participant, payment_amount=payment_amount, **validated_data, status="A" if not need_approval else "P"
             )
         raise serializers.ValidationError("Ticket is not available")

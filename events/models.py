@@ -76,6 +76,7 @@ class Ticket(models.Model):
     capacity = models.IntegerField()
     purchased = models.IntegerField(default=0)
     available = models.BooleanField(default=True)
+    needs_approval = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} for {self.event}"
