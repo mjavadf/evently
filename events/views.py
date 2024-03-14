@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from events.permissions import IsOwnerOrReadOnly
 from .serializers import (
+    CategorySerializer,
     EventImageSerializer,
     EventSerializer,
     EventListSerializer,
@@ -14,16 +15,18 @@ from .serializers import (
     ReservationSerializer,
     ReservationCreateSerializer,
 )
-from .models import Event, EventImage, Profile, Ticket, Reservation
+from .models import Category, Event, EventImage, Profile, Ticket, Reservation
 from .permissions import IsAdminOrIsSelf
 from .mixins import CheckParentPermissionMixin
+from rest_framework.generics import ListAPIView
 
 
 class EventViewSet(ModelViewSet):
     queryset = Event.objects.prefetch_related("tickets", "location", "images").all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
-    permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
@@ -133,3 +136,9 @@ class EventImageViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {"event_id": self.kwargs["event_pk"], "request": self.request}
+
+
+class CategoryListView(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = []

@@ -1,4 +1,5 @@
 
+from django.urls import include, path
 from rest_framework_nested import routers
 from . import views
 
@@ -11,4 +12,7 @@ events_router = routers.NestedDefaultRouter(router, "events", lookup="event")
 events_router.register("tickets", views.TicketViewSet, basename="tickets")
 events_router.register("images", views.EventImageViewSet, basename="images")
 
-urlpatterns = router.urls + events_router.urls
+urlpatterns = [
+    path("", include(router.urls)),
+    path("categories/", views.CategoryListView.as_view(), name="categories"),
+]

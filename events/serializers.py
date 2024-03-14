@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework import serializers
-from .models import Event, Profile, Ticket, Reservation, Location, EventImage
+from .models import Category, Event, Profile, Ticket, Reservation, Location, EventImage
 from .utils import calendar_link_generator
 
 
@@ -8,13 +8,13 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ("id", "name", "country", "city", "address", "latitude", "longitude")
-        
+
 
 class EventImageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         event_id = self.context["event_id"]
         return EventImage.objects.create(event_id=event_id, **validated_data)
-    
+
     class Meta:
         model = EventImage
         fields = ("id", "image")
@@ -24,7 +24,10 @@ class EventSerializer(serializers.ModelSerializer):
     tickets = serializers.SerializerMethodField()
     organizer = serializers.PrimaryKeyRelatedField(read_only=True)
     location_id = serializers.PrimaryKeyRelatedField(
-        queryset=Location.objects.all(), source='location', required=False, allow_null=True
+        queryset=Location.objects.all(),
+        source="location",
+        required=False,
+        allow_null=True,
     )
     location = LocationSerializer(required=False)
     images = EventImageSerializer(many=True, required=False)
@@ -42,7 +45,7 @@ class EventSerializer(serializers.ModelSerializer):
             "tickets",
             "location_id",
             "location",
-            "images"
+            "images",
         )
 
     def get_tickets(self, obj):
@@ -50,9 +53,9 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         organizer = self.context["request"].user
-        
-        location_data = validated_data.pop('location', None)
-        location_id = validated_data.pop('location_id', None)
+
+        location_data = validated_data.pop("location", None)
+        location_id = validated_data.pop("location_id", None)
 
         if location_id:
             location = Location.objects.get(id=location_id)
@@ -61,12 +64,14 @@ class EventSerializer(serializers.ModelSerializer):
         else:
             location = None
 
-        event = Event.objects.create(organizer=organizer, location=location, **validated_data)
+        event = Event.objects.create(
+            organizer=organizer, location=location, **validated_data
+        )
         return event
-    
+
     def update(self, instance, validated_data):
-        location_data = validated_data.pop('location', None)
-        location_id = validated_data.pop('location_id', None)
+        location_data = validated_data.pop("location", None)
+        location_id = validated_data.pop("location_id", None)
 
         if location_id:
             location = Location.objects.get(id=location_id)
@@ -88,7 +93,16 @@ class EventListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ("id", "title", "date", "end_date", "price", "organizer", "location", "images")
+        fields = (
+            "id",
+            "title",
+            "date",
+            "end_date",
+            "price",
+            "organizer",
+            "location",
+            "images",
+        )
 
     def price_calculator(self, event: Event):
         tickets = event.tickets.all()
@@ -162,8 +176,10 @@ class ReservationSerializer(serializers.ModelSerializer):
     )
     code = serializers.IntegerField(read_only=True)
     qrcode = serializers.ImageField(read_only=True)
-    add_to_calendar = serializers.SerializerMethodField(method_name="calendar_link", read_only=True)
-    
+    add_to_calendar = serializers.SerializerMethodField(
+        method_name="calendar_link", read_only=True
+    )
+
     def calendar_link(self, reservation: Reservation):
         return calendar_link_generator(reservation)
 
@@ -189,8 +205,10 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
     payment_status = serializers.CharField(read_only=True)
     code = serializers.IntegerField(read_only=True)
     qrcode = serializers.ImageField(read_only=True)
-    add_to_calendar = serializers.SerializerMethodField(method_name="calendar_link", read_only=True)
-    
+    add_to_calendar = serializers.SerializerMethodField(
+        method_name="calendar_link", read_only=True
+    )
+
     def calendar_link(self, reservation: Reservation):
         return calendar_link_generator(reservation)
 
@@ -204,7 +222,7 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
             "payment_method",
             "code",
             "qrcode",
-            "add_to_calendar"
+            "add_to_calendar",
         )
 
     def create(self, validated_data):
@@ -218,12 +236,24 @@ class ReservationCreateSerializer(serializers.ModelSerializer):
                 "You have already made a reservation for this event"
             )
         (is_successful, availablity_type) = ticket.buy()
-        if is_successful and availablity_type == "available" :
+        if is_successful and availablity_type == "available":
             return Reservation.objects.create(
-                participant=participant, payment_amount=payment_amount, **validated_data, status="A" if not need_approval else "P"
+                participant=participant,
+                payment_amount=payment_amount,
+                **validated_data,
+                status="A" if not need_approval else "P",
             )
         elif is_successful and availablity_type == "waitlist":
             return Reservation.objects.create(
-                participant=participant, payment_amount=payment_amount, **validated_data, status="W"
+                participant=participant,
+                payment_amount=payment_amount,
+                **validated_data,
+                status="W",
             )
         raise serializers.ValidationError("Ticket is not available")
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "name")
