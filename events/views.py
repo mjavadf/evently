@@ -10,12 +10,13 @@ from .serializers import (
     EventImageSerializer,
     EventSerializer,
     EventListSerializer,
+    LocationSerializer,
     ProfileSerializer,
     TicketSerializer,
     ReservationSerializer,
     ReservationCreateSerializer,
 )
-from .models import Category, Event, EventImage, Profile, Ticket, Reservation
+from .models import Category, Event, EventImage, Location, Profile, Ticket, Reservation
 from .permissions import IsAdminOrIsSelf
 from .mixins import CheckParentPermissionMixin
 from rest_framework.generics import ListAPIView
@@ -141,4 +142,10 @@ class EventImageViewSet(ModelViewSet):
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = []
+    
+    
+class LocationListView(ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
     permission_classes = []

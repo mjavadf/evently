@@ -15,4 +15,5 @@ events_router.register("images", views.EventImageViewSet, basename="images")
 urlpatterns = [
     path("", include(router.urls)),
     path("categories/", views.CategoryListView.as_view(), name="categories"),
+    path("locations/", views.LocationListView.as_view(), name="locations"),
 ]
