@@ -62,10 +62,11 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.title}"
     
-    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.end_date:
             self.end_date = self.date + timedelta(hours=2)
         return super().save(force_insert, force_update, using, update_fields)
+
 
 
 class EventImage(models.Model):

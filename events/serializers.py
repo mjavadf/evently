@@ -23,13 +23,6 @@ class EventImageSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     tickets = serializers.SerializerMethodField()
     organizer = serializers.PrimaryKeyRelatedField(read_only=True)
-    location_id = serializers.PrimaryKeyRelatedField(
-        queryset=Location.objects.all(),
-        source="location",
-        required=False,
-        allow_null=True,
-    )
-    location = LocationSerializer(required=False)
     images = EventImageSerializer(many=True, required=False)
 
     class Meta:
@@ -43,7 +36,6 @@ class EventSerializer(serializers.ModelSerializer):
             "organizer",
             "category",
             "tickets",
-            "location_id",
             "location",
             "images",
         )
@@ -54,36 +46,10 @@ class EventSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         organizer = self.context["request"].user
 
-        location_data = validated_data.pop("location", None)
-        location_id = validated_data.pop("location_id", None)
-
-        if location_id:
-            location = Location.objects.get(id=location_id)
-        elif location_data:
-            location = Location.objects.create(**location_data)
-        else:
-            location = None
-
         event = Event.objects.create(
-            organizer=organizer, location=location, **validated_data
+            organizer=organizer, **validated_data
         )
         return event
-
-    def update(self, instance, validated_data):
-        location_data = validated_data.pop("location", None)
-        location_id = validated_data.pop("location_id", None)
-
-        if location_id:
-            location = Location.objects.get(id=location_id)
-        elif location_data:
-            location = Location.objects.create(**location_data)
-        else:
-            location = None
-
-        instance.location = location
-        instance.save()
-
-        return super().update(instance, validated_data)
 
 
 class EventListSerializer(serializers.ModelSerializer):
