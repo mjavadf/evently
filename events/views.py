@@ -149,3 +149,4 @@ class LocationListView(ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = []
+    pagination_class = None
