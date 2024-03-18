@@ -10,7 +10,7 @@ router.register("reservations", views.ReservationViewSet, basename="reservations
 
 events_router = routers.NestedDefaultRouter(router, "events", lookup="event")
 events_router.register("tickets", views.TicketViewSet, basename="tickets")
-events_router.register("images", views.EventImageViewSet, basename="images")
+# events_router.register("images", views.EventImageViewSet, basename="images")
 
 urlpatterns = [
     path("", include(router.urls)),

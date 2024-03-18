@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework import serializers
-from .models import Category, Event, Profile, Ticket, Reservation, Location, EventImage
+from .models import Category, Event, Profile, Ticket, Reservation, Location
 from .utils import calendar_link_generator
 
 
@@ -10,20 +10,20 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "country", "city", "address", "latitude", "longitude")
 
 
-class EventImageSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        event_id = self.context["event_id"]
-        return EventImage.objects.create(event_id=event_id, **validated_data)
+# class EventImageSerializer(serializers.ModelSerializer):
+#     def create(self, validated_data):
+#         event_id = self.context["event_id"]
+#         return EventImage.objects.create(event_id=event_id, **validated_data)
 
-    class Meta:
-        model = EventImage
-        fields = ("id", "image")
+#     class Meta:
+#         model = EventImage
+#         fields = ("id", "image")
 
 
 class EventSerializer(serializers.ModelSerializer):
     tickets = serializers.SerializerMethodField()
     organizer = serializers.PrimaryKeyRelatedField(read_only=True)
-    images = EventImageSerializer(many=True, required=False)
+    # images = EventImageSerializer(many=True, required=False)
 
     class Meta:
         model = Event
@@ -37,7 +37,7 @@ class EventSerializer(serializers.ModelSerializer):
             "category",
             "tickets",
             "location",
-            "images",
+            "cover",
         )
 
     def get_tickets(self, obj):
@@ -55,7 +55,7 @@ class EventSerializer(serializers.ModelSerializer):
 class EventListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField(method_name="price_calculator")
     location = LocationSerializer()
-    images = EventImageSerializer(many=True, required=False)
+    # images = EventImageSerializer(many=True, required=False)
 
     class Meta:
         model = Event
@@ -67,7 +67,7 @@ class EventListSerializer(serializers.ModelSerializer):
             "price",
             "organizer",
             "location",
-            "images",
+            "cover",
         )
 
     def price_calculator(self, event: Event):

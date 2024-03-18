@@ -41,6 +41,12 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
+    cover = models.ImageField(
+        upload_to="events/covers",
+        validators=[validate_image_size],
+        null=True,
+        blank=True,
+    )
 
     location = models.ForeignKey(
         Location,
@@ -69,12 +75,12 @@ class Event(models.Model):
 
 
 
-class EventImage(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(
-        upload_to="events/images",
-        validators=[validate_image_size],
-    )
+# class EventImage(models.Model):
+#     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
+#     image = models.ImageField(
+#         upload_to="events/images",
+#         validators=[validate_image_size],
+#     )
 
 
 class Ticket(models.Model):
