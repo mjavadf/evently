@@ -20,9 +20,38 @@ class LocationSerializer(serializers.ModelSerializer):
 #         model = EventImage
 #         fields = ("id", "image")
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "name")
+
+
+class EventDetailSerialzier(serializers.ModelSerializer):
+    tickets = serializers.SerializerMethodField()
+    organizer = CustomUserDetailSerialzier(read_only=True)
+    category = CategorySerializer(read_only=True)
+    location = LocationSerializer(read_only=True)
+    # images = EventImageSerializer(many=True, required=False)
+
+    class Meta:
+        model = Event
+        fields = (
+            "id",
+            "title",
+            "description",
+            "date",
+            "end_date",
+            "cover",
+            "organizer",
+            "category",
+            "location",
+            "tickets",
+        )
+
+    def get_tickets(self, obj):
+        return TicketSerializer(obj.tickets.all(), many=True).data
 
 class EventSerializer(serializers.ModelSerializer):
-    tickets = serializers.SerializerMethodField()
     organizer = CustomUserDetailSerialzier(read_only=True)
     # images = EventImageSerializer(many=True, required=False)
 
@@ -35,9 +64,8 @@ class EventSerializer(serializers.ModelSerializer):
             "date",
             "end_date",
             "organizer",
-            "category",
-            "tickets",
             "location",
+            "category",
             "cover",
         )
 

@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from events.permissions import IsOwnerOrReadOnly
 from .serializers import (
     CategorySerializer,
+    EventDetailSerialzier,
     # EventImageSerializer,
     EventSerializer,
     EventListSerializer,
@@ -32,6 +33,8 @@ class EventViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["list"]:
             return EventListSerializer
+        elif self.action in ["retrieve"]:
+            return EventDetailSerialzier
         else:
             return EventSerializer
 
