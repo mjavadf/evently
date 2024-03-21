@@ -1,4 +1,3 @@
-
 from django.urls import include, path
 from rest_framework_nested import routers
 from . import views
@@ -14,6 +13,7 @@ events_router.register("tickets", views.TicketViewSet, basename="tickets")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("", include(events_router.urls)),
     path("categories/", views.CategoryListView.as_view(), name="categories"),
     path("locations/", views.LocationListView.as_view(), name="locations"),
 ]
