@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework import serializers
 from .models import Category, Event, Profile, Ticket, Reservation, Location
 from .utils import calendar_link_generator
+from core.serializers import CustomUserDetailSerialzier
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -22,7 +23,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     tickets = serializers.SerializerMethodField()
-    organizer = serializers.PrimaryKeyRelatedField(read_only=True)
+    organizer = CustomUserDetailSerialzier(read_only=True)
     # images = EventImageSerializer(many=True, required=False)
 
     class Meta:
