@@ -60,7 +60,7 @@ class TicketViewSet(CheckParentPermissionMixin, ModelViewSet):
     lookup_field = "id"
 
     def get_queryset(self):
-        return Ticket.objects.filter(event_id=self.kwargs["event_pk"])
+        return Ticket.objects.filter(event_id=self.kwargs["event_pk"]).order_by("id")
 
     def get_serializer_context(self):
         return {"event_pk": self.kwargs["event_pk"], "user": self.request.user}
