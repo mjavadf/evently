@@ -24,7 +24,9 @@ from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
-    queryset = Event.objects.prefetch_related("tickets", "location").all().order_by("-id")
+    queryset = (
+        Event.objects.prefetch_related("tickets", "location").all().order_by("-id")
+    )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "organizer"]
     # permission_classes = [IsOwnerOrReadOnly]
@@ -98,17 +100,23 @@ class ProfileViewSet(ModelViewSet):
                 {"detail": "You don't have permission to view the profiles."},
                 status=403,
             )
-            
+
     @action(detail=True, methods=["delete"], permission_classes=[IsAdminOrIsSelf])
     def remove_image(self, request, user__username=None):
         profile = self.get_object()
         if profile.image:
             profile.image.delete()  # Remove the image file
-            profile.image = None    # Clear the image field in the model
+            profile.image = None  # Clear the image field in the model
             profile.save()
-            return Response({"detail": "Profile image removed successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Profile image removed successfully"},
+                status=status.HTTP_200_OK,
+            )
         else:
-            return Response({"detail": "No profile image to remove"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"detail": "No profile image to remove"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
 
 
 class ReservationViewSet(ModelViewSet):
@@ -146,10 +154,17 @@ class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = []
-    
-    
+
+
 class LocationListView(ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = []
     pagination_class = None
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "name",
+        "country",
+        "city",
+        "address",
+    ]
