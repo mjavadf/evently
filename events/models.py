@@ -85,9 +85,21 @@ class Event(models.Model):
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
+        self.change_location_type()
         if not self.end_date:
             self.end_date = self.date + timedelta(hours=2)
         return super().save(force_insert, force_update, using, update_fields)
+    
+    # Change location type based on providing location or meeting link or both or none
+    def change_location_type(self):
+        if self.location and self.meeting_link:
+            self.location_type = "H"
+        elif self.location:
+            self.location_type = "V"
+        elif self.meeting_link:
+            self.location_type = "O"
+        else:
+            self.location_type = "U"
 
 
 # class EventImage(models.Model):
