@@ -24,19 +24,24 @@ class Category(models.Model):
 class Location(models.Model):
     # https://github.com/openwisp/django-rest-framework-gis
     # https://github.com/Hipo/drf-extra-fields
-    name = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-    # picture = models.ImageField(upload_to='locations', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.country}, {self.city}, {self.address}"
 
 
 class Event(models.Model):
+    LOCATION_TYPE_CHOICES = [
+        ("O", "Online"),
+        ("V", "Venue"),
+        ("H", "Hybrid"),
+        ("U", "Undecided"),
+    ]
+
     title = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateTimeField()
@@ -48,14 +53,23 @@ class Event(models.Model):
         blank=True,
     )
 
-    location = models.ForeignKey(
-        Location,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="events",
-        default=None,
+    location_type = models.CharField(
+        choices=LOCATION_TYPE_CHOICES, max_length=1, default="U"
     )
+    meeting_link = models.URLField(null=True, blank=True)
+    location = models.OneToOneField(
+        Location, on_delete=models.PROTECT, related_name="event", null=True, blank=True
+    )
+
+    # location = models.ForeignKey(
+    #     Location,
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True,
+    #     related_name="events",
+    #     default=None,
+    # )
+
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -67,12 +81,13 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title}"
-    
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         if not self.end_date:
             self.end_date = self.date + timedelta(hours=2)
         return super().save(force_insert, force_update, using, update_fields)
-
 
 
 # class EventImage(models.Model):
@@ -152,8 +167,8 @@ class Reservation(models.Model):
         max_length=50, choices=PAYMENT_METHOD_CHOICES, default="N"
     )
     code = models.PositiveIntegerField(null=True, blank=True, unique=True)
-    qrcode = models.ImageField(upload_to='qrcodes',blank=True)
-    
+    qrcode = models.ImageField(upload_to="qrcodes", blank=True)
+
     def generate_unique_code(self):
         # Generate a unique 8-digit code
         while True:
@@ -161,24 +176,23 @@ class Reservation(models.Model):
             if not Reservation.objects.filter(code=code).exists():
                 break
         return code
-        
 
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         # Generate and assign a unique code when saving the reservation
         if not self.code:
             self.code = self.generate_unique_code()
-        
+
         # generate and save qr_code
         if not self.qrcode:
             qrcode_img = qrcode.make(self.code)
-            canvas = Image.new("RGB", (300,300),"white")
+            canvas = Image.new("RGB", (300, 300), "white")
             draw = ImageDraw.Draw(canvas)
             canvas.paste(qrcode_img)
             buffer = BytesIO()
-            canvas.save(buffer,"PNG")
-            self.qrcode.save(f'qrcode{self.code}.png',File(buffer),save=False)
+            canvas.save(buffer, "PNG")
+            self.qrcode.save(f"qrcode{self.code}.png", File(buffer), save=False)
             canvas.close()
-        
+
         super().save(*args, **kwargs)
 
     def __str__(self):
