@@ -15,5 +15,4 @@ urlpatterns = [
     path("", include(router.urls)),
     path("", include(events_router.urls)),
     path("categories/", views.CategoryListView.as_view(), name="categories"),
-    path("locations/", views.LocationListView.as_view(), name="locations"),
 ]

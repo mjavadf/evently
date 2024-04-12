@@ -8,7 +8,7 @@ from core.serializers import CustomUserDetailSerialzier
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ("id", "name", "country", "city", "address", "latitude", "longitude")
+        fields = ("id", "country", "city", "address", "latitude", "longitude")
 
 
 # class EventImageSerializer(serializers.ModelSerializer):
@@ -54,6 +54,9 @@ class EventDetailSerialzier(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     organizer = CustomUserDetailSerialzier(read_only=True)
     # images = EventImageSerializer(many=True, required=False)
+    # "country", "city", "address", "latitude", "longitude"
+    location = LocationSerializer()
+    
 
     class Meta:
         model = Event
@@ -64,9 +67,9 @@ class EventSerializer(serializers.ModelSerializer):
             "date",
             "end_date",
             "organizer",
-            "location",
             "category",
             "cover",
+            "location",
         )
 
     def get_tickets(self, obj):
@@ -74,9 +77,11 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         organizer = self.context["request"].user
+        location_details = validated_data.pop("location")
+        location = Location.objects.create(**location_details)
 
         event = Event.objects.create(
-            organizer=organizer, **validated_data
+            organizer=organizer, location=location ,**validated_data
         )
         return event
 

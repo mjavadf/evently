@@ -11,24 +11,23 @@ from .serializers import (
     # EventImageSerializer,
     EventSerializer,
     EventListSerializer,
-    LocationSerializer,
     ProfileSerializer,
     TicketSerializer,
     ReservationSerializer,
     ReservationCreateSerializer,
 )
-from rest_framework.generics import ListCreateAPIView, ListAPIView
-from .models import Category, Event, Location, Profile, Ticket, Reservation
+from rest_framework.generics import ListAPIView
+from .models import Category, Event, Profile, Ticket, Reservation
 from .permissions import IsAdminOrIsSelf
 from .mixins import CheckParentPermissionMixin
 
 
 class EventViewSet(ModelViewSet):
     queryset = (
-        Event.objects.prefetch_related("tickets", "location").all().order_by("-id")
+        Event.objects.prefetch_related("tickets").all().order_by("-id")
     )
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["category", "organizer"]
+    filterset_fields = ["category", "organizer", "location_type"]
     # permission_classes = [IsOwnerOrReadOnly]
     permission_classes = [IsAuthenticated]
 
@@ -155,16 +154,3 @@ class CategoryListView(ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = []
 
-
-class LocationListView(ListCreateAPIView):
-    queryset = Location.objects.all()
-    serializer_class = LocationSerializer
-    permission_classes = []
-    pagination_class = None
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = [
-        "name",
-        "country",
-        "city",
-        "address",
-    ]
