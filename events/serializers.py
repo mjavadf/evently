@@ -44,6 +44,8 @@ class EventDetailSerialzier(serializers.ModelSerializer):
             "cover",
             "organizer",
             "category",
+            "location_type",
+            "meeting_link",
             "location",
             "tickets",
         )
@@ -54,7 +56,6 @@ class EventDetailSerialzier(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     organizer = CustomUserDetailSerialzier(read_only=True)
     # images = EventImageSerializer(many=True, required=False)
-    # "country", "city", "address", "latitude", "longitude"
     location = LocationSerializer()
     
 
@@ -69,6 +70,8 @@ class EventSerializer(serializers.ModelSerializer):
             "organizer",
             "category",
             "cover",
+            "location_type",
+            "meeting_link",
             "location",
         )
 
@@ -100,6 +103,8 @@ class EventListSerializer(serializers.ModelSerializer):
             "end_date",
             "price",
             "organizer",
+            "location_type",
+            "meeting_link",
             "location",
             "cover",
         )
