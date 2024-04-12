@@ -84,11 +84,11 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         organizer = self.context["request"].user
-        location_details = validated_data.pop("location")
-        if location_details:
-            location = None
-        else:
+        try:
+            location_details = validated_data.pop("location")
             location = Location.objects.create(**location_details)
+        except KeyError:
+            location = None
 
         event = Event.objects.create(
             organizer=organizer, location=location ,**validated_data
