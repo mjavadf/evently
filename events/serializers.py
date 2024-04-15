@@ -94,6 +94,74 @@ class EventSerializer(serializers.ModelSerializer):
             organizer=organizer, location=location ,**validated_data
         )
         return event
+    
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get("title", instance.title)
+        instance.description = validated_data.get("description", instance.description)
+        instance.date = validated_data.get("date", instance.date)
+        instance.end_date = validated_data.get("end_date", instance.end_date)
+        instance.category = validated_data.get("category", instance.category)
+        instance.cover = validated_data.get("cover", instance.cover)
+        
+         # Handle location and meeting link based on location type
+        old_type = instance.location_type
+        new_type = validated_data.get("location_type", instance.location_type)
+
+        # Get location details from validated data
+        location_details = validated_data.pop("location", None)
+
+        # Handle location and meeting link based on location type transitions
+        if old_type == "U":
+            # Handle transitions from undecided
+            if new_type == "V" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+            elif new_type == "O":
+                instance.meeting_link = validated_data.get("meeting_link", None)
+            elif new_type == "H" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+                instance.meeting_link = validated_data.get("meeting_link", None)
+        elif old_type == "H":
+            # Handle transitions from hybrid
+            if new_type == "U":
+                instance.location = None
+                instance.meeting_link = None
+            elif new_type == "V" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+                instance.meeting_link = None
+            elif new_type == "O":
+                instance.location = None
+                instance.meeting_link = validated_data.get("meeting_link", None)
+        elif old_type == "V":
+            # Handle transitions from venue
+            if new_type == "U":
+                instance.location = None
+            elif new_type == "O":
+                instance.location = None
+                instance.meeting_link = validated_data.get("meeting_link", None)
+            elif new_type == "H" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+                instance.meeting_link = validated_data.get("meeting_link", None)
+        elif old_type == "O":
+            # Handle transitions from online
+            if new_type == "U":
+                instance.meeting_link = None
+            elif new_type == "V" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+                instance.meeting_link = None
+            elif new_type == "H" and location_details:
+                location, _ = Location.objects.get_or_create(**location_details)
+                instance.location = location
+                instance.meeting_link = validated_data.get("meeting_link", None)
+
+        instance.save()
+        return instance
+            
+        
 
 
 class EventListSerializer(serializers.ModelSerializer):
