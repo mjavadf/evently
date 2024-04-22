@@ -101,7 +101,10 @@ class EventSerializer(serializers.ModelSerializer):
         instance.date = validated_data.get("date", instance.date)
         instance.end_date = validated_data.get("end_date", instance.end_date)
         instance.category = validated_data.get("category", instance.category)
-        instance.cover = validated_data.get("cover", instance.cover)
+        
+        # Check if the cover field is present in the validated data
+        if "cover" in validated_data:
+            instance.cover = validated_data["cover"]
         
          # Handle location and meeting link based on location type
         old_type = instance.location_type
