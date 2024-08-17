@@ -1,0 +1,14 @@
+django
+django-rest-framework
+django-filter
+django-environ
+djoser
+psycopg2
+drf-nested-routers
+django-debug-toolbar
+pillow
+django-cors-headers
+celery
+redis
+django-templated-mail
+qrcode[pil]
