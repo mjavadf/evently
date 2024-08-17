@@ -193,3 +193,30 @@ EMAIL_PORT = 2525 #other servers usually work on 25
 DEFAULT_FROM_EMAIL = 'from@storefront.com'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "general.log",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "" : {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} ({levelname}) - {name} - {message}",
+            "style": "{",
+        },
+    },
+}
