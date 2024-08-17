@@ -1,8 +1,8 @@
 databases:
   - name: evently
     plan: free
-    databaseName: evently_idl4
-    user: evently_idl4_user
+    databaseName: evently_xpje
+    user: evently_xpje_user
 
 services:
   - type: web
